@@ -12,6 +12,8 @@ String gainText;
 int bnHeight, bnWidth;
 PFont f;
 Serial port;
+int motes;
+PrintWriter output;
 
 void setup() {
   size(450, 190);
@@ -25,6 +27,8 @@ void setup() {
   
   bnHeight = 25;
   bnWidth = 100;
+  
+  motes = 2;
 }
 
 void draw() {
@@ -93,8 +97,8 @@ void beginCollection() {
 
 void endCollection() {
   // Stop collecting.
-  println("O");
-  port.write("O");
+  println("S");
+  port.write("S");
 }
 
 void restartCollection() {
@@ -104,8 +108,8 @@ void restartCollection() {
 }
 
 void synchronizeADC() {
-  println("S");
-  port.write("S");
+  println("Y");
+  port.write("Y");
 }
 
 void calibrate() {
@@ -128,17 +132,41 @@ void changeGain() {
 }
 
 void requestTransmissions() {
-  // Add round robin logic here.
-  println("T");
-  port.write("T");
-  //serialEvent();
-  
+  // Assume we know all the motes. Then loop through these motes.
+  for (int i = 0; i < motes; i++) {
+    // Create a nice file to write data to.
+    output = createWriter(i + "_data.txt");
+    println("T" + i);
+    
+    // Send the command to get feedback.
+    port.write("T" + i);
+    
+    // Give the mote time to receive and start sending.
+    delay(200);
+    
+    // Ghetto way to keep the basestation from contacting another mote.
+    while(port.available() > 0) {
+      // wait (later calculate time to wait empirically)
+    }
+    
+    // We're out of bytes. Let's wait 100ms to see if any more come in.
+    delay(100);
+    // If more bytes came in, wait another second to accomodate slackers.
+    if (port.available() > 0) {
+      delay(1000);
+    }
+    
+    // Close out the file.
+    output.flush();
+    output.close();
+  }
 }
 
 void serialEvent(Serial myPort) {
   String inString = myPort.readStringUntil('\n');
    if (inString != null) {
     inString = trim(inString);
+    output.println(inString);
     println(inString);
    }
     
