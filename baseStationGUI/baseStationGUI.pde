@@ -8,14 +8,19 @@ int[] bnTransmit = {175, 100};
 int[] bnCalibrate = {300, 100};
 int[] bnGain = {50, 150};
 int[] bnFrequency = {175, 150};
+int[] bnGraph = {300, 150};
+int bnHeight, bnWidth;
+
 int gainValue, frequencyValue;
 int[] frequencyRate = {10, 100, 200, 250, 500};
 String gainText, frequencyText;
-int bnHeight, bnWidth;
+
 PFont f;
 Serial port;
 int motes;
 PrintWriter output;
+BufferedReader input;
+int timeStampLastData;
 
 void setup() {
   size(450, 390);
@@ -54,7 +59,8 @@ void draw() {
   rect(bnCalibrate[0], bnCalibrate[1], bnWidth, bnHeight);
   rect(bnGain[0], bnGain[1], bnWidth, bnHeight);
   rect(bnFrequency[0], bnFrequency[1], bnWidth, bnHeight);
-  rect(0, 188, width, 198);
+  rect(bnGraph[0], bnGraph[1], bnWidth, bnHeight);
+  rect(0, 189, width-1, 200);
   
   fill(0);
   text("Start", bnWidth/2 + bnStart[0], bnStart[1] + 0.8*bnHeight);
@@ -65,6 +71,7 @@ void draw() {
   text("Calibrate", bnWidth/2 + bnCalibrate[0], bnCalibrate[1] + 0.8*bnHeight);
   text(gainText, bnWidth/2 + bnGain[0], bnGain[1] + 0.8*bnHeight);
   text(frequencyText, bnWidth/2 + bnFrequency[0], bnFrequency[1] + 0.8*bnHeight);
+  text("Graph Data", bnWidth/2 + bnGraph[0], bnGraph[1] + 0.8*bnHeight);
   
 
 }
@@ -163,7 +170,7 @@ void requestTransmissions() {
     
     // Send the command to get feedback.
     port.write("T" + i);
-    
+     
     // Give the mote time to receive and start sending.
     delay(200);
     
