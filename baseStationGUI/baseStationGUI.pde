@@ -7,8 +7,10 @@ int[] bnSynchronize = {50, 100};
 int[] bnTransmit = {175, 100};
 int[] bnCalibrate = {300, 100};
 int[] bnGain = {50, 150};
-int gainValue;
-String gainText;
+int[] bnFrequency = {175, 150};
+int gainValue, frequencyValue;
+int[] frequencyRate = {10, 100, 200, 250, 500};
+String gainText, frequencyText;
 int bnHeight, bnWidth;
 PFont f;
 Serial port;
@@ -16,19 +18,22 @@ int motes;
 PrintWriter output;
 
 void setup() {
-  size(450, 190);
+  size(450, 390);
   f = createFont("Segoe UI", 20, true);
   
   // Serial(parent, String portName, rate);
   port = new Serial(this, Serial.list()[0], 57600);
   
   gainValue = 1;
-  gainText = "Gain 1";
+  gainText = "Gain 1.0";
+  
+  frequencyValue = 1;
+  frequencyText = "Frequency 10";
   
   bnHeight = 25;
-  bnWidth = 100;
+  bnWidth = 120;
   
-  motes = 2;
+  motes = 1;
 }
 
 void draw() {
@@ -48,6 +53,8 @@ void draw() {
   rect(bnTransmit[0], bnTransmit[1], bnWidth, bnHeight);
   rect(bnCalibrate[0], bnCalibrate[1], bnWidth, bnHeight);
   rect(bnGain[0], bnGain[1], bnWidth, bnHeight);
+  rect(bnFrequency[0], bnFrequency[1], bnWidth, bnHeight);
+  rect(0, 188, width, 198);
   
   fill(0);
   text("Start", bnWidth/2 + bnStart[0], bnStart[1] + 0.8*bnHeight);
@@ -57,6 +64,7 @@ void draw() {
   text("Transmit", bnWidth/2 + bnTransmit[0], bnTransmit[1] + 0.8*bnHeight);
   text("Calibrate", bnWidth/2 + bnCalibrate[0], bnCalibrate[1] + 0.8*bnHeight);
   text(gainText, bnWidth/2 + bnGain[0], bnGain[1] + 0.8*bnHeight);
+  text(frequencyText, bnWidth/2 + bnFrequency[0], bnFrequency[1] + 0.8*bnHeight);
   
 
 }
@@ -76,6 +84,8 @@ void mousePressed() {
     calibrate();
   } else if (overRect(bnGain)) {
     changeGain();
+  } else if (overRect(bnFrequency)) {
+    changeFrequency();
   }
   // Add logic here!
 }
@@ -131,9 +141,22 @@ void changeGain() {
   port.write("G" + gainValue);
 }
 
+void changeFrequency() {
+  frequencyValue += 1;
+  frequencyValue = frequencyValue % 6;
+  if (frequencyValue == 0) {
+    frequencyValue = 1;
+  }
+  
+  frequencyText = "Frequency " + frequencyRate[frequencyValue - 1];
+  
+  println("F" + frequencyValue);
+  port.write("F" + frequencyValue);
+}
+
 void requestTransmissions() {
   // Assume we know all the motes. Then loop through these motes.
-  for (int i = 0; i < motes; i++) {
+  for (int i = 1; i < (motes+1); i++) {
     // Create a nice file to write data to.
     output = createWriter(i + "_data.txt");
     println("T" + i);
@@ -148,6 +171,10 @@ void requestTransmissions() {
     while(port.available() > 0) {
       // wait (later calculate time to wait empirically)
     }
+    
+    // Rewrite to use milli and keep track of if any data is coming in while we wait for 100ms,
+    // instead of just sleeping. If we delay, do we lose data, too?
+    
     
     // We're out of bytes. Let's wait 100ms to see if any more come in.
     delay(100);
