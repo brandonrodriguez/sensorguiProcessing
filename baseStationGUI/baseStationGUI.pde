@@ -48,7 +48,7 @@ void setup() {
   bnHeight = 25;
   bnWidth = 120;
   
-  motes = 2;
+  motes = 3;
 }
 
 /**
@@ -240,9 +240,9 @@ void graphData() {
   input = createReader("1_data.txt");
   String line;
   int dataPoint;
-  while (line = input.readLine();) {
-    dataPoint = Integer.parseInt(line);
-  }
+ // while (line = input.readLine()) {
+  //  dataPoint = Integer.parseInt(line);
+ // }
 }
 
 /**
