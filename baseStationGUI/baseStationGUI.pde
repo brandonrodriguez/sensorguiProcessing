@@ -25,9 +25,9 @@ int timeStampLastData;
 void setup() {
   size(450, 390);
   f = createFont("Segoe UI", 20, true);
-  
+  println(Serial.list());
   // Serial(parent, String portName, rate);
-  port = new Serial(this, Serial.list()[0], 57600);
+    port = new Serial(this, Serial.list()[0], 57600);
   
   gainValue = 1;
   gainText = "Gain 1.0";
@@ -38,7 +38,7 @@ void setup() {
   bnHeight = 25;
   bnWidth = 120;
   
-  motes = 1;
+  motes = 2;
 }
 
 void draw() {
@@ -175,9 +175,9 @@ void requestTransmissions() {
     delay(200);
     
     // Ghetto way to keep the basestation from contacting another mote.
-    while(port.available() > 0) {
+    //while(port.available() > 0) {
       // wait (later calculate time to wait empirically)
-    }
+    //}
     
     // Rewrite to use milli and keep track of if any data is coming in while we wait for 100ms,
     // instead of just sleeping. If we delay, do we lose data, too?
@@ -187,9 +187,9 @@ void requestTransmissions() {
     delay(100);
     // If more bytes came in, wait another second to accomodate slackers.
     if (port.available() > 0) {
-      delay(1000);
+      //delay(10000);
     }
-    
+    delay(10000);
     // Close out the file.
     output.flush();
     output.close();
@@ -197,12 +197,17 @@ void requestTransmissions() {
 }
 
 void serialEvent(Serial myPort) {
+try {
   String inString = myPort.readStringUntil('\n');
    if (inString != null) {
     inString = trim(inString);
-    output.println(inString);
+    // File writing causing NullPointerException when writing from functions outside of Transmission
+    //output.println(inString);
     println(inString);
    }
+} catch (Exception e) {
+   println(e); 
+}
     
 }
 
