@@ -1,14 +1,15 @@
 // Import the Serial class for use with radio.
 import processing.serial.*;
+import controlP5.*;
 
 // Hard-coded values of button locations.
 // int[] bnName = {xPos, yPos};
 int[] bnStart = {50, 50};
 int[] bnEnd = {175, 50};
-int[] bnSynchronize = {50, 100};
 int[] bnTransmit = {175, 100};
 int[] bnCalibrate = {300, 100};
 int[] bnGain = {50, 150};
+DropdownList bnGain1;
 int[] bnFrequency = {175, 150};
 int[] bnGraph = {300, 150};
 int bnHeight, bnWidth;
@@ -17,6 +18,9 @@ int bnHeight, bnWidth;
 int gainValue, frequencyValue;
 int[] frequencyRate = {10, 100, 200, 250, 500};
 String gainText, frequencyText;
+boolean drawGraph;
+HScrollbar hs1;
+ArrayList<Integer> scaledData;
 
 // Create environment variables to control font,
 // serial port, file I/O, and the number of motes (hard-coded
@@ -28,6 +32,8 @@ PrintWriter output;
 boolean fileOpen;
 BufferedReader input;
 int timeStampLastData;
+String console;
+ControlP5 cp5;
 
 /**
  * Instantiate some of the global variables.
@@ -35,10 +41,22 @@ int timeStampLastData;
  * 
  */
 void setup() {
-  size(450, 390);
+  size(450, 410);
   f = createFont("Segoe UI", 20, true);
   port = new Serial(this, Serial.list()[0], 57600);
+  console = "";
+  scaledData = new ArrayList<Integer>();
+  hs1 = new HScrollbar(0, 381, width, 16, 16);
   
+  /*cp5 = new ControlP5(this);
+  bnGain1 = cp5.addDropdownList("Gain").setPosition(25,100).setSize(bnWidth, bnHeight);
+  bnGain1.addItem("1", 1);
+  bnGain1.addItem("2", 2);
+  bnGain1.addItem("3", 4);*/
+  
+  // Set Precision button between 16 and 24 bits.
+  // PL for 16 and PH for 24 (low and high)
+
   gainValue = 1;
   gainText = "Gain 1.0";
   
@@ -57,6 +75,7 @@ void setup() {
  * 
  */
 void draw() {
+  background(128);
   textFont(f, 16);
   textAlign(CENTER);
   
@@ -70,7 +89,6 @@ void draw() {
   fill(255);
   rect(bnStart[0], bnStart[1], bnWidth, bnHeight);
   rect(bnEnd[0], bnEnd[1], bnWidth, bnHeight);
-  rect(bnSynchronize[0], bnSynchronize[1], bnWidth, bnHeight);
   rect(bnTransmit[0], bnTransmit[1], bnWidth, bnHeight);
   rect(bnCalibrate[0], bnCalibrate[1], bnWidth, bnHeight);
   rect(bnGain[0], bnGain[1], bnWidth, bnHeight);
@@ -78,17 +96,27 @@ void draw() {
   rect(bnGraph[0], bnGraph[1], bnWidth, bnHeight);
   rect(0, 189, width-1, 200);
   
+  fill(240);
+  rect(0, 389, 450, 20);
+  fill(255,0,0);
+  for (int i = 0; i < scaledData.size(); i++) {
+    rect(i - (round(hs1.getPos())*(scaledData.size()-450)/450), 389, 1, (-1)*scaledData.get(i));
+  }
+  hs1.update();
+  hs1.display();
+  
   // Button text.
   fill(0);
   text("Start", bnWidth/2 + bnStart[0], bnStart[1] + 0.8*bnHeight);
-  text("End", bnWidth/2 + bnEnd[0], bnEnd[1] + 0.8*bnHeight);
-  text("Synchronize", bnWidth/2 + bnSynchronize[0], bnSynchronize[1] + 0.8*bnHeight);
+  text("Stop", bnWidth/2 + bnEnd[0], bnEnd[1] + 0.8*bnHeight);
   text("Transmit", bnWidth/2 + bnTransmit[0], bnTransmit[1] + 0.8*bnHeight);
   text("Calibrate", bnWidth/2 + bnCalibrate[0], bnCalibrate[1] + 0.8*bnHeight);
   text(gainText, bnWidth/2 + bnGain[0], bnGain[1] + 0.8*bnHeight);
   text(frequencyText, bnWidth/2 + bnFrequency[0], bnFrequency[1] + 0.8*bnHeight);
   text("Graph Data", bnWidth/2 + bnGraph[0], bnGraph[1] + 0.8*bnHeight);
   
+  textAlign(LEFT);
+  text(": " + console, 5, 405);
 
 }
 
@@ -101,8 +129,6 @@ void mousePressed() {
     beginCollection();
   } else if (overRect(bnEnd)) {
     endCollection();
-  } else if (overRect(bnSynchronize)) {
-    synchronizeADC();
   } else if (overRect(bnTransmit)) {
     requestTransmissions();
   } else if (overRect(bnCalibrate)) {
@@ -136,7 +162,7 @@ boolean overRect(int[] pos) {
  */
 void beginCollection() {
   // Start collecting.
-  println("R");
+  console = "Broadcasting START command.";
   port.write("R");
 }
 
@@ -146,17 +172,8 @@ void beginCollection() {
  */
 void endCollection() {
   // Stop collecting.
-  println("S");
+  console = "Broadcasting STOP command.";
   port.write("S");
-}
-
-/**
- * Broadcast to motes to synchronize the ADC.
- * 
- */
-void synchronizeADC() {
-  println("Y");
-  port.write("Y");
 }
 
 /**
@@ -164,7 +181,7 @@ void synchronizeADC() {
  * 
  */
 void calibrate() {
-  println("C");
+  console = "Broadcasting CALIBRATE command.";
   port.write("C");
 }
 
@@ -182,7 +199,7 @@ void changeGain() {
   float gainRate = pow(2, (gainValue - 1));
   gainText = "Gain " + gainRate;
   
-  println("G" + gainValue);
+  console = "Broadcasting G" + gainValue + ".";
   port.write("G" + gainValue);
 }
 
@@ -199,7 +216,7 @@ void changeFrequency() {
   
   frequencyText = "Frequency " + frequencyRate[frequencyValue - 1];
   
-  println("F" + frequencyValue);
+  console = "Broadcasting F" + frequencyValue + ".";
   port.write("F" + frequencyValue);
 }
 
@@ -215,7 +232,7 @@ void requestTransmissions() {
     fileOpen = true;
     
     // Send the command to get feedback.
-    println("T" + i);
+    console = "Asking mote " + i + " for transmission data.";
     port.write("T" + i);
     
     timeStampLastData = millis();
@@ -237,12 +254,23 @@ void requestTransmissions() {
  * 
  */
 void graphData() {
-  input = createReader("1_data.txt");
-  String line;
-  int dataPoint;
- // while (line = input.readLine()) {
-  //  dataPoint = Integer.parseInt(line);
- // }
+  scaledData = new ArrayList<Integer>();
+  String[] lines = loadStrings("1_data.txt");
+  int max = 0;
+  // Determine the largest number to make the scale.
+  for (int i = 0; i < lines.length; i++) {
+    if (Integer.parseInt(lines[i]) > max) {
+      max = Integer.parseInt(lines[i]);
+    }
+  }
+  drawGraph = true;
+  
+  double scale = 200.0/max;
+  println("Scale " + scale);
+  for (int i = 0; i < lines.length; i++) {
+    scaledData.add((int)Math.round(scale*Integer.parseInt(lines[i])));
+    //println(scaledData.get(i));
+  }
 }
 
 /**
@@ -256,7 +284,8 @@ try {
   String inString = myPort.readStringUntil('\n');
    if (inString != null) {
     inString = trim(inString);
-    println(inString);
+    console = inString;
+//println(inString);
     if (fileOpen) {
       output.println(inString);
     }
