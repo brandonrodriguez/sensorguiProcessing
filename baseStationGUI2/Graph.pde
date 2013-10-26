@@ -22,14 +22,17 @@ class Graph {
     dataPoints = new ArrayList<Integer>();
     String[] lines = loadStrings(filename);
     int max = 0;
+    int number;
     for (int i = 0; i < lines.length; i++) {
-      if (Integer.parseInt(lines[i]) > max) {
-        max = Integer.parseInt(lines[i]);
+      number = unbinary(lines[i]);
+      if (number > max) {
+        max = number;
       }
     }
     double scale = (double) Graph.gHeight/max;
     for (int i = 0; i < lines.length; i++) {
-      dataPoints.add((int) Math.round(scale * Integer.parseInt(lines[i])));
+      number = unbinary(lines[i]);
+      dataPoints.add((int) Math.round(scale * number));
     }
   }
   

@@ -310,6 +310,7 @@ void serialTransmit() {
     transmission = true;
   } else {
     transmission = false;
+    currentMote = 0;
     loadData();
     initButtons();
     return;
@@ -334,12 +335,9 @@ void serialTransmit() {
 }
 void serialEvent(Serial p) {
   timeStamp = millis();
-  String str = p.readStringUntil('\n');
-  if (str != null) {
-    str = trim(str);
-  }
-  if (hasOutput && str != null && str.charAt(0) != 'M') {
-    output.println(str);
+  byte[] bytes = new byte[4];
+  if (hasOutput) {
+    output.println(bytes);
   }
 }
 
