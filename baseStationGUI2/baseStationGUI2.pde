@@ -310,6 +310,7 @@ void serialTransmit() {
     transmission = true;
   } else {
     transmission = false;
+    currentMote = 0;
     loadData();
     initButtons();
     return;
