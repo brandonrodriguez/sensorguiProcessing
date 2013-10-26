@@ -19,8 +19,9 @@ int gainValue, frequencyValue;
 int[] frequencyRate = {10, 100, 200, 250, 500};
 String gainText, frequencyText;
 boolean drawGraph;
-HScrollbar hs1;
-ArrayList<Integer> scaledData;
+HScrollbar hs1, hs2, hs3;
+ArrayList<Integer> scaledData, scaledData2, scaledData3;
+ArrayList<String> filenames;
 
 // Create environment variables to control font,
 // serial port, file I/O, and the number of motes (hard-coded
@@ -41,12 +42,17 @@ ControlP5 cp5;
  * 
  */
 void setup() {
-  size(450, 410);
+  size(900, 610);
   f = createFont("Segoe UI", 20, true);
   port = new Serial(this, Serial.list()[0], 57600);
   console = "";
   scaledData = new ArrayList<Integer>();
-  hs1 = new HScrollbar(0, 381, width, 16, 16);
+  scaledData2 = new ArrayList<Integer>();
+  scaledData3 = new ArrayList<Integer>();
+  filenames = new ArrayList<String>();
+  hs1 = new HScrollbar(0, 381, 450, 16, 16);
+  hs2 = new HScrollbar(0, 581, 450, 16, 16);
+  hs3 = new HScrollbar(450, 381, 450, 16, 16);
   
   /*cp5 = new ControlP5(this);
   bnGain1 = cp5.addDropdownList("Gain").setPosition(25,100).setSize(bnWidth, bnHeight);
@@ -94,16 +100,31 @@ void draw() {
   rect(bnGain[0], bnGain[1], bnWidth, bnHeight);
   rect(bnFrequency[0], bnFrequency[1], bnWidth, bnHeight);
   rect(bnGraph[0], bnGraph[1], bnWidth, bnHeight);
-  rect(0, 189, width-1, 200);
+  rect(0, 189, 449, 200);
+  rect(0, 389, 449, 200);
+  //rect(450, 189, 449, 200);
   
-  fill(240);
-  rect(0, 389, 450, 20);
+  //fill(240);
+  //rect(0, 389, 450, 20);
   fill(255,0,0);
   for (int i = 0; i < scaledData.size(); i++) {
     rect(i - (round(hs1.getPos())*(scaledData.size()-450)/450), 389, 1, (-1)*scaledData.get(i));
   }
+  for (int i = 0; i < scaledData2.size(); i++) {
+    rect(i - (round(hs2.getPos())*(scaledData2.size()-450)/450), 589, 1, (-1)*scaledData2.get(i));
+  }
+  fill(255);
+  rect(450, 189, 449, 200);
+  fill(255, 0, 0);
+  for (int i = 0; i < scaledData3.size(); i++) {
+    rect(1000+i - (round(hs3.getPos())*(scaledData3.size()-450)/450), 389, 1, (-1)*scaledData3.get(i));
+  }
   hs1.update();
   hs1.display();
+  hs2.update();
+  hs2.display();
+  hs3.update();
+  hs3.display();
   
   // Button text.
   fill(0);
@@ -116,7 +137,7 @@ void draw() {
   text("Graph Data", bnWidth/2 + bnGraph[0], bnGraph[1] + 0.8*bnHeight);
   
   textAlign(LEFT);
-  text(": " + console, 5, 405);
+  //text(": " + console, 5, 405);
 
 }
 
@@ -226,9 +247,17 @@ void changeFrequency() {
  */
 void requestTransmissions() {
   // Assume we know all the motes. Then loop through these motes.
+  int y, m, d, h, minute, s;
   for (int i = 1; i < (motes+1); i++) {
     // Create a nice file to write data to.
-    output = createWriter(i + "_data.txt");
+    y = year();
+    m = month();
+    d = day();
+    h = hour();
+    minute = minute();
+    s = second();
+    filenames.add(i + "_" + y  + "_" + m  + "_" + d  + "_"+ h  + minute + s + ".txt");
+    output = createWriter(filenames.get(filenames.size() - 1));
     fileOpen = true;
     
     // Send the command to get feedback.
@@ -246,6 +275,8 @@ void requestTransmissions() {
     output.flush();
     output.close();
   }
+  
+    graphData();
 }
 
 /**
@@ -254,8 +285,10 @@ void requestTransmissions() {
  * 
  */
 void graphData() {
+  drawGraph = true;
   scaledData = new ArrayList<Integer>();
-  String[] lines = loadStrings("1_data.txt");
+  String filename = filenames.get(0);
+  String[] lines = loadStrings(filename);
   int max = 0;
   // Determine the largest number to make the scale.
   for (int i = 0; i < lines.length; i++) {
@@ -263,13 +296,46 @@ void graphData() {
       max = Integer.parseInt(lines[i]);
     }
   }
-  drawGraph = true;
   
   double scale = 200.0/max;
   println("Scale " + scale);
   for (int i = 0; i < lines.length; i++) {
     scaledData.add((int)Math.round(scale*Integer.parseInt(lines[i])));
     //println(scaledData.get(i));
+  }
+
+  scaledData2 = new ArrayList<Integer>();
+  filename = filenames.get(1);
+  lines = loadStrings(filename);
+  max = 0;
+  // Determine the largest number to make the scale.
+  for (int i = 0; i < lines.length; i++) {
+    if (Integer.parseInt(lines[i]) > max) {
+      max = Integer.parseInt(lines[i]);
+    }
+  }
+  
+  scale = 200.0/max;
+  println("Scale " + scale);
+  for (int i = 0; i < lines.length; i++) {
+    scaledData2.add((int)Math.round(scale*Integer.parseInt(lines[i])));
+  }
+  
+  scaledData3 = new ArrayList<Integer>();
+  filename = filenames.get(2);
+  lines = loadStrings(filename);
+  max = 0;
+  // Determine the largest number to make the scale.
+  for (int i = 0; i < lines.length; i++) {
+    if (Integer.parseInt(lines[i]) > max) {
+      max = Integer.parseInt(lines[i]);
+    }
+  }
+  
+  scale = 200.0/max;
+  println("Scale " + scale);
+  for (int i = 0; i < lines.length; i++) {
+    scaledData3.add((int)Math.round(scale*Integer.parseInt(lines[i])));
   }
 }
 
