@@ -110,8 +110,9 @@ void createLayout() {
   frequency.addChild("500 Samples", 5);
   buttons.add(new Button(10, 110 + 5*Button.bnHeight, true, "Precision"));
   Button precision = buttons.get(buttons.size() - 1);
-  precision.addChild("16 bit", 1);
-  precision.addChild("24 bit", 2);
+  precision.addChild("16 bit", 'L');
+  precision.addChild("24 bit", 'H');
+  buttons.add(new Button(10, 120 + 6*Button.bnHeight, true, "Debug Info"));
 }
 
 void drawTitle() {
@@ -263,8 +264,13 @@ void buttonLogic(Button currentButton, String s, boolean isChild) {
     if (isChild) {
       MenuButton cb = (MenuButton) currentButton;
       String text = cb.getText();
-      int value = cb.getValue();
-      serialPrecision(text, value);
+      char state = cb.getState();
+      serialPrecision(text, state);
+    }
+  } else if (s.equals("Debug Info")) {
+    for (int i = 0; i < numberOfMotes; i++) {
+      println(graphs.get(i).filename);
+      println(graphs.get(i).getData().size());
     }
   }
 }
@@ -297,19 +303,16 @@ void serialFrequency(String text, int value) {
     setConsole("Error broadcasting FREQUENCY command");
   }
 }
-void serialPrecision(String text, int value) {
-  if (value > 0 && value < 3) {
-    setConsole("Broadcasting PRECISION. Setting to " + text);
-    port.write("P" + value);
-  } else {
-    setConsole("Error broadcasting PRECISION command");
-  }
+void serialPrecision(String text, char state) {
+    setConsole("Broadcasting PRECISION. Setting to P" + state);
+    port.write("P" + state);
 }
 void serialTransmit() {
   if (currentMote < numberOfMotes) {
     transmission = true;
   } else {
     transmission = false;
+    currentMote = 0;
     loadData();
     initButtons();
     return;
@@ -340,6 +343,9 @@ void serialEvent(Serial p) {
   }
   if (hasOutput && str != null && str.charAt(0) != 'M') {
     output.println(str);
+  }
+  if (str != null && str.charAt(0) == 'M') {
+    setConsole(str);
   }
 }
 

@@ -31,23 +31,41 @@ class Graph {
     for (int i = 0; i < lines.length; i++) {
       dataPoints.add((int) Math.round(scale * Integer.parseInt(lines[i])));
     }
+
   }
   
   public void showData() {
     fill(0);
+    int lowerBound = round(scroll.getPos()) - xPos - 6; // 0 when at leftmost scroll position.
+    int upperBound;
+    if (lowerBound > dataPoints.size()) {
+      upperBound = 0;
+    } else if ((lowerBound + Graph.gWidth) > dataPoints.size()) {
+      println("upperBound is just dataPoints.size()");
+      upperBound = lowerBound + dataPoints.size();
+    } else {
+      upperBound = lowerBound + Graph.gWidth;
+    }
+    for (int i = lowerBound; i < upperBound; i++) {
+      rect((round(scroll.getPos()) - xPos - 6) + xPos + i, yPos + Graph.gHeight, 1, (-1)*dataPoints.get(i));
+    }
+  }
+  
+ /* public void showData() {
+    fill(0);
     int lowerBound = round(scroll.getPos());
     int upperBound;
     if ((lowerBound + Graph.gWidth) > dataPoints.size()) {
-      upperBound = dataPoints.size();
+      upperBound = dataPoints.size() + lowerBound;
     } else {
       upperBound = lowerBound + Graph.gWidth;
     }
     int j = 0;
-    for (int i = round(scroll.getPos()); i < upperBound; i++) {
+    for (int i = lowerBound; i < upperBound; i++) {
       rect(j + xPos, yPos + Graph.gHeight, 1, (-1)*dataPoints.get(i));
       j++;
     }
-  }
+  }*/
   
   // Getters & Setters.
   public int getX() {

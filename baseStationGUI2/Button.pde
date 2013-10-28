@@ -65,6 +65,11 @@ class Button {
     children.add(mb);
     return mb;
   }
+  public MenuButton addChild(String t, char s) {
+    MenuButton mb = new MenuButton(this, t, s);
+    children.add(mb);
+    return mb;
+  }
   
   // Getters & Setters
   public int getX() {
