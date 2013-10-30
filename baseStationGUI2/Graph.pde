@@ -18,20 +18,21 @@ class Graph {
     dataPoints = new ArrayList<Integer>();
   }
   
+  //replace "unbinary" function ... this is not how you combine raw bytes into int
   public void loadData() {
     dataPoints = new ArrayList<Integer>();
     String[] lines = loadStrings(filename);
     int max = 0;
     int number;
     for (int i = 0; i < lines.length; i++) {
-      number = unbinary(lines[i]);
+      number = Integer.parseInt(lines[i]);
       if (number > max) {
         max = number;
       }
     }
     double scale = (double) Graph.gHeight/max;
     for (int i = 0; i < lines.length; i++) {
-      number = unbinary(lines[i]);
+      number = Integer.parseInt(lines[i]);
       dataPoints.add((int) Math.round(scale * number));
     }
   }

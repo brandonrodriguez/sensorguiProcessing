@@ -53,7 +53,7 @@ void setup() {
   buttons = new ArrayList<Button>();
   graphs = new ArrayList<Graph>();
   font = createFont("Segoe UI", 20, true);
-  port = new Serial(this, Serial.list()[0], 57600);
+  port = new Serial(this, Serial.list()[1], 57600);
   numberOfMotes = 0;
   setMotes = false;
   verticalScroll = new VScrollbar(width - 16, 0, height, 16, 16);
@@ -334,10 +334,20 @@ void serialTransmit() {
   port.write("T" + currentMote);
 }
 void serialEvent(Serial p) {
+  //debugging...
+  setConsole("Got response from mote");
+  int value;
   timeStamp = millis();
-  byte[] bytes = new byte[4];
-  if (hasOutput) {
-    output.println(bytes);
+  char[] bytes = new char[4];
+  //read in the bytes values here perhaps check for 1 byte only at first (if event skipped because less than 4 values read in by the time of this check)
+  while(p.available() >= 4){
+    for(int i=0;i<4;i++){
+      bytes[i] = p.readChar();
+    }
+    value = ((bytes[3]<<24) | (bytes[2]<<16) | (bytes[1]<<8) | (bytes[0]));
+    if (hasOutput) {
+      output.println(value);
+    }
   }
 }
 
