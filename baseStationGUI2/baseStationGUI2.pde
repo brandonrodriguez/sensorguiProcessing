@@ -6,7 +6,7 @@
 import processing.serial.*;
 
 // Set the length of time to wait (in ms) before querying the next mote for data.
-final int transmissionTimeout = 500;
+final int transmissionTimeout = 5000;
 
 // A list of buttons to display.
 ArrayList<Button> buttons;
@@ -53,7 +53,7 @@ void setup() {
   buttons = new ArrayList<Button>();
   graphs = new ArrayList<Graph>();
   font = createFont("Segoe UI", 20, true);
-  port = new Serial(this, Serial.list()[1], 57600);
+  port = new Serial(this, Serial.list()[1], 128000);
   numberOfMotes = 0;
   setMotes = false;
   verticalScroll = new VScrollbar(width - 16, 0, height, 16, 16);
