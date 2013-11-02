@@ -53,7 +53,7 @@ void setup() {
   buttons = new ArrayList<Button>();
   graphs = new ArrayList<Graph>();
   font = createFont("Segoe UI", 20, true);
-  port = new Serial(this, Serial.list()[1], 128000);
+  port = new Serial(this, Serial.list()[1], 57600);
   numberOfMotes = 0;
   setMotes = false;
   verticalScroll = new VScrollbar(width - 16, 0, height, 16, 16);
