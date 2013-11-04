@@ -13,6 +13,7 @@ ArrayList<Button> buttons;
 
 // A list of graphs to draw (note this is populated by the user's input of number of motes).
 ArrayList<Graph> graphs;
+color[] graphColors;
 
 // Set the font for the application.
 PFont font;
@@ -52,6 +53,12 @@ void setup() {
   // Instantiate global variable objects.
   buttons = new ArrayList<Button>();
   graphs = new ArrayList<Graph>();
+  graphColors = new color[5];
+  graphColors[0] = #FF0000;
+  graphColors[1] = #00FF00;
+  graphColors[2] = #0000FF;
+  graphColors[3] = #0FF000;
+  graphColors[4] = #000FF0;
   font = createFont("Segoe UI", 20, true);
   port = new Serial(this, Serial.list()[0], 57600);
   numberOfMotes = 0;
@@ -86,7 +93,7 @@ void draw() {
 
 void createLayout() {
   for (int i = 0; i < numberOfMotes; i++) {
-    graphs.add(new Graph(20 + Button.bnWidth, 60 + i*Graph.gHeight));
+    graphs.add(new Graph(20 + Button.bnWidth, 60 + i*Graph.gHeight, graphColors[i]));
   }
   buttons.add(new Button(10, 60 + 0*Button.bnHeight, true, "Start"));
   buttons.add(new Button(10, 70 + 1*Button.bnHeight, false, "Stop"));

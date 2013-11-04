@@ -6,13 +6,15 @@ class Graph {
   
   private int xPos;
   private int yPos;
+  private color gC;
   public HScrollbar scroll;
   public String filename;
   private ArrayList<Integer> dataPoints;
   
-  public Graph(int x, int y) {
+  public Graph(int x, int y, color c) {
     xPos = x;
     yPos = y;
+    gC = c;
     // Position the scrollbar at the bottom of the graph, overlayed.
     scroll = new HScrollbar(xPos, yPos + gHeight - (gScrollHeight / 2), gWidth, gScrollWidth, gScrollHeight);
     dataPoints = new ArrayList<Integer>();
@@ -22,32 +24,28 @@ class Graph {
     dataPoints = new ArrayList<Integer>();
     String[] lines = loadStrings(filename);
     int max = 0;
+    int min = (int) Math.pow(2, 16);
     for (int i = 0; i < lines.length; i++) {
       if (Integer.parseInt(lines[i]) > max) {
         max = Integer.parseInt(lines[i]);
       }
+      if (Integer.parseInt(lines[i]) < min) {
+        min = Integer.parseInt(lines[i]);
+      }
     }
-    double scale = (double) Graph.gHeight/max;
+    int range = max - min;
+    double scale = (double) Graph.gHeight/range;
     for (int i = 0; i < lines.length; i++) {
-      dataPoints.add((int) Math.round(scale * Integer.parseInt(lines[i])));
+      dataPoints.add((int) Math.round(scale * (Integer.parseInt(lines[i]) - min)));
     }
 
   }
   
   public void showData() {
-    fill(0);
-    int lowerBound = round(scroll.getPos()) - xPos - 6; // 0 when at leftmost scroll position.
-    int upperBound;
-    if (lowerBound > dataPoints.size()) {
-      upperBound = 0;
-    } else if ((lowerBound + Graph.gWidth) > dataPoints.size()) {
-      println("upperBound is just dataPoints.size()");
-      upperBound = lowerBound + dataPoints.size();
-    } else {
-      upperBound = lowerBound + Graph.gWidth;
-    }
-    for (int i = lowerBound; i < upperBound; i++) {
-      rect((round(scroll.getPos()) - xPos - 6) + xPos + i, yPos + Graph.gHeight, 1, (-1)*dataPoints.get(i));
+    fill(gC);
+    // scroll.getPos() - 6;
+    for (int i = 0; i < dataPoints.size(); i++) {
+      rect(xPos + i, yPos + Graph.gHeight, 1,  (-1)*dataPoints.get(i));
     }
   }
   
