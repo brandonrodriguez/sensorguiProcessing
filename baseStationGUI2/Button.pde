@@ -1,13 +1,15 @@
 class Button {
   public static final int bnWidth = 120;
   public static final int bnHeight = 25;
+  protected BaseStation base;
   protected int xPos;
   protected int yPos;
   protected String text;
   protected boolean active;
   private ArrayList<Button> children;
   
-  Button(int x, int y, boolean a, String s) {
+  Button(BaseStation bs, int x, int y, boolean a, String s) {
+    base = bs;
     xPos = x;
     yPos = y;
     text = s;
@@ -54,6 +56,11 @@ class Button {
       b = (MenuButton) children.get(i);
       if (x >= b.getX() && x <= (b.getX() + bnWidth) &&
           y >= b.getY() && y <= (b.getY() + bnHeight)) {
+        if (b.getValue() == 0) {
+          base.settings.put(text, b.getState());
+        } else {
+          base.settings.put(text, Character.forDigit(b.getValue(), 10));
+        }
         return b;
       }
     }

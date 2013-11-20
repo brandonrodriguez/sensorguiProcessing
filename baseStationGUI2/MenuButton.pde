@@ -5,12 +5,12 @@ class MenuButton extends Button {
   private char state;
   
   public MenuButton(Button p, String t, int v) {
-    super(p.getX() + Button.bnWidth + 2, p.getY() + Button.bnHeight*p.getChildren().size(), p.isActive(), t);
+    super(null, p.getX() + Button.bnWidth + 2, p.getY() + Button.bnHeight*p.getChildren().size(), p.isActive(), t);
     parent = p;
     value = v;
   }
   public MenuButton(Button p, String t, char s) {
-    super(p.getX() + Button.bnWidth + 2, p.getY() + Button.bnHeight*p.getChildren().size(), p.isActive(), t);
+    super(null, p.getX() + Button.bnWidth + 2, p.getY() + Button.bnHeight*p.getChildren().size(), p.isActive(), t);
     parent = p;
     state = s;
   }
