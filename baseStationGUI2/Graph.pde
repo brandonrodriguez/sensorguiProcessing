@@ -47,7 +47,7 @@ class Graph {
     for (int i = 1; i < lines.length; i++) {
       //dataPoints.add((int) Math.round(scale * (Integer.parseInt(lines[i]) - min)));
       // Graphed points have values between -120 and +120 (roughly). This range is larger than the height of the graph, so also scale.
-      dataPoints.add((int) ((100*((( Integer.parseInt(lines[i])*1.0 / Math.pow(2, precision - 1)) - 1) * vref) / (1.0*gain))*(200/240.0)));
+      dataPoints.add((int) ((1000*((( Integer.parseInt(lines[i])*1.0 / Math.pow(2, precision)) - 1) * vref) / (1.0*gain))*(200/240.0)));
       println(dataPoints.get(dataPoints.size() -1));
     }
 
