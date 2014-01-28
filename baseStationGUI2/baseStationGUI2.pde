@@ -95,19 +95,19 @@ void createLayout() {
   Button gain = buttons.get(buttons.size() - 1);
   gain.addChild("1", 1);
   gain.addChild("2", 2);
-  gain.addChild("4", 3);
-  gain.addChild("8", 4);
-  gain.addChild("16", 5);
-  gain.addChild("32", 6);
-  gain.addChild("64", 7);
-  gain.addChild("128", 8);
+  gain.addChild("4", 4);
+  gain.addChild("8", 8);
+  gain.addChild("16", 16);
+  gain.addChild("32", 32);
+  gain.addChild("64", 64);
+  gain.addChild("128", 128);
   buttons.add(new Button(10, 100 + 4*Button.bnHeight, true, "Frequency"));
   Button frequency = buttons.get(buttons.size() - 1);
-  frequency.addChild("10 Samples", 1);
-  frequency.addChild("100 Samples", 2);
-  frequency.addChild("200 Samples", 3);
-  frequency.addChild("250 Samples", 4);
-  frequency.addChild("500 Samples", 5);
+  frequency.addChild("10 Samples", 10);
+  frequency.addChild("100 Samples", 100);
+  frequency.addChild("200 Samples", 200);
+  frequency.addChild("250 Samples", 250);
+  frequency.addChild("500 Samples", 500);
   buttons.add(new Button(10, 110 + 5*Button.bnHeight, true, "Precision"));
   Button precision = buttons.get(buttons.size() - 1);
   precision.addChild("16 bit", 1);
@@ -271,10 +271,14 @@ void buttonLogic(Button currentButton, String s, boolean isChild) {
 
 void serialStart() {
   setConsole("Broadcasting START command");
+  port.write((char)2);
+  port.write((char)1);
   port.write("R");
 }
 void serialStop() {
   setConsole("Broadcasting STOP command");
+  port.write((char)2);
+  port.write((char)1);
   port.write("S");
 }
 void serialCalibrate() {
@@ -282,20 +286,32 @@ void serialCalibrate() {
   port.write("C");
 }
 void serialGain(String text, int value) {
-  if (value > 0 && value < 9) {
+  //if (value > 0 && value < 9) {
     setConsole("Broadcasting GAIN. Setting to " + text);
-    port.write("G" + value);
-  } else {
-    setConsole("Error broadcasting GAIN command");
-  }
+    port.write((char)6);
+    port.write((char)1);
+    port.write("G");
+    port.write((char)value);
+    port.write((char)(value>>8));
+    port.write((char)(value>>16));
+    port.write((char)(value>>24));
+  //} else {
+  //  setConsole("Error broadcasting GAIN command");
+  //}
 }
 void serialFrequency(String text, int value) {
-  if (value > 0 && value < 6) {
+  //if (value > 0 && value < 6) {
     setConsole("Broadcasting FREQUENCY. Setting to " + text);
-    port.write("F" + value);
-  } else {
-    setConsole("Error broadcasting FREQUENCY command");
-  }
+    port.write((char)6);
+    port.write((char)1);
+    port.write("F");
+    port.write((char)value);
+    port.write((char)(value>>8));
+    port.write((char)(value>>16));
+    port.write((char)(value>>24));
+  //} else {
+  //  setConsole("Error broadcasting FREQUENCY command");
+  //}
 }
 void serialPrecision(String text, int value) {
   if (value > 0 && value < 3) {
@@ -331,7 +347,9 @@ void serialTransmit() {
   g.filename = filename;
   output = openFile(filename);
   timeStamp = millis();
-  port.write("T" + currentMote);
+  port.write((char)2);
+  port.write((char)currentMote);
+  port.write("T");
 }
 void serialEvent(Serial p) {
   //debugging...
