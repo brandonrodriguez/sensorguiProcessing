@@ -271,15 +271,19 @@ void buttonLogic(Button currentButton, String s, boolean isChild) {
 
 void serialStart() {
   setConsole("Broadcasting START command");
-  port.write((char)2);
-  port.write((char)1);
-  port.write("R");
+  for (int i=1;i<= numberOfMotes;i++){
+    port.write((char)2);
+    port.write((char)i);
+    port.write("R");
+  }
 }
 void serialStop() {
   setConsole("Broadcasting STOP command");
-  port.write((char)2);
-  port.write((char)1);
-  port.write("S");
+  for (int i=1;i<= numberOfMotes;i++){
+    port.write((char)2);
+    port.write((char)i);
+    port.write("S");
+  }
 }
 void serialCalibrate() {
   setConsole("Broadcasting CALIBRATE command");
@@ -288,13 +292,15 @@ void serialCalibrate() {
 void serialGain(String text, int value) {
   //if (value > 0 && value < 9) {
     setConsole("Broadcasting GAIN. Setting to " + text);
-    port.write((char)6);
-    port.write((char)1);
-    port.write("G");
-    port.write((char)value);
-    port.write((char)(value>>8));
-    port.write((char)(value>>16));
-    port.write((char)(value>>24));
+    for (int i=1;i<= numberOfMotes;i++){
+      port.write((char)6);
+      port.write((char)i);
+      port.write("G");
+      port.write((char)value);
+      port.write((char)(value>>8));
+      port.write((char)(value>>16));
+      port.write((char)(value>>24));
+    }
   //} else {
   //  setConsole("Error broadcasting GAIN command");
   //}
@@ -302,13 +308,15 @@ void serialGain(String text, int value) {
 void serialFrequency(String text, int value) {
   //if (value > 0 && value < 6) {
     setConsole("Broadcasting FREQUENCY. Setting to " + text);
-    port.write((char)6);
-    port.write((char)1);
-    port.write("F");
-    port.write((char)value);
-    port.write((char)(value>>8));
-    port.write((char)(value>>16));
-    port.write((char)(value>>24));
+    for (int i=1;i<= numberOfMotes;i++){
+      port.write((char)6);
+      port.write((char)i);
+      port.write("F");
+      port.write((char)value);
+      port.write((char)(value>>8));
+      port.write((char)(value>>16));
+      port.write((char)(value>>24));
+    }
   //} else {
   //  setConsole("Error broadcasting FREQUENCY command");
   //}
