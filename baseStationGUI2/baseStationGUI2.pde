@@ -6,7 +6,7 @@
 import processing.serial.*;
 
 // Set the length of time to wait (in ms) before querying the next mote for data.
-final int transmissionTimeout = 5000;
+final int transmissionTimeout = 2000;
 
 // A list of buttons to display.
 ArrayList<Button> buttons;
@@ -271,19 +271,18 @@ void buttonLogic(Button currentButton, String s, boolean isChild) {
 
 void serialStart() {
   setConsole("Broadcasting START command");
-  for (int i=1;i<= numberOfMotes;i++){
-    port.write((char)2);
-    port.write((char)i);
-    port.write("R");
-  }
+  port.write((char)3);
+  port.write((char)255);
+  port.write((char)255);
+  port.write("R");
+  
 }
 void serialStop() {
   setConsole("Broadcasting STOP command");
-  for (int i=1;i<= numberOfMotes;i++){
-    port.write((char)2);
-    port.write((char)i);
-    port.write("S");
-  }
+  port.write((char)3);
+  port.write((char)255);
+  port.write((char)255);
+  port.write("S");
 }
 void serialCalibrate() {
   setConsole("Broadcasting CALIBRATE command");
@@ -292,15 +291,15 @@ void serialCalibrate() {
 void serialGain(String text, int value) {
   //if (value > 0 && value < 9) {
     setConsole("Broadcasting GAIN. Setting to " + text);
-    for (int i=1;i<= numberOfMotes;i++){
-      port.write((char)6);
-      port.write((char)i);
-      port.write("G");
-      port.write((char)value);
-      port.write((char)(value>>8));
-      port.write((char)(value>>16));
-      port.write((char)(value>>24));
-    }
+    port.write((char)7);
+    port.write((char)255);
+    port.write((char)255);
+    port.write("G");
+    port.write((char)value);
+    port.write((char)(value>>8));
+    port.write((char)(value>>16));
+    port.write((char)(value>>24));
+    
   //} else {
   //  setConsole("Error broadcasting GAIN command");
   //}
@@ -308,15 +307,15 @@ void serialGain(String text, int value) {
 void serialFrequency(String text, int value) {
   //if (value > 0 && value < 6) {
     setConsole("Broadcasting FREQUENCY. Setting to " + text);
-    for (int i=1;i<= numberOfMotes;i++){
-      port.write((char)6);
-      port.write((char)i);
-      port.write("F");
-      port.write((char)value);
-      port.write((char)(value>>8));
-      port.write((char)(value>>16));
-      port.write((char)(value>>24));
-    }
+    port.write((char)7);
+    port.write((char)255);
+    port.write((char)255);
+    port.write("F");
+    port.write((char)value);
+    port.write((char)(value>>8));
+    port.write((char)(value>>16));
+    port.write((char)(value>>24));
+    
   //} else {
   //  setConsole("Error broadcasting FREQUENCY command");
   //}
@@ -355,8 +354,9 @@ void serialTransmit() {
   g.filename = filename;
   output = openFile(filename);
   timeStamp = millis();
-  port.write((char)2);
+  port.write((char)3);
   port.write((char)currentMote);
+  port.write((char)0);
   port.write("T");
 }
 void serialEvent(Serial p) {
